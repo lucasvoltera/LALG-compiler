@@ -1,0 +1,169 @@
+// @import url('https://fonts.googleapis.com/css2?family=Bigelow+Rules&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  // font-family: 'Inconsolata', monospace;
+  font-family: 'roboto', monospace;
+}
+
+
+:root {
+  --background: #fff;
+  --current-line: #aaa;
+  --section: #333;
+  --foreground: #333;
+  --purple: #aaa;
+}
+
+
+body {
+  // margin: 10px;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+
+  button, label {
+    cursor: pointer;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    gap: 10px;
+    padding: 6px 12px;
+    margin-bottom: 20px;
+  
+    color: var(--foreground);
+    border: 1px solid var(--current-line);
+    border-radius: 4px;
+    background-color: rgba($color: #44475a, $alpha: 0.4);
+  
+    font-size: 14px;
+    font-weight: 600;
+  
+    transition: all 0.2s;
+  
+    &:hover {
+      background-color: var(--current-line);
+    }
+  }
+}
+
+.container {
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.code-editor {
+  width: 45%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 40px;
+  margin-bottom: 20px;
+
+  .actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    input {
+      display: none;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 10px;
+
+      .upload {
+        border: 1px solid var(--purple);
+        background-color: rgba($color: #988BC7, $alpha: 0.4);
+  
+        transition: all 0.2s;
+      
+        &:hover {
+          background-color: var(--purple);
+        }
+      }
+    }
+  }
+}
+
+.invisible {
+  right: -60%;
+  transition: all 0.4s;
+}
+
+.visible {
+  right: 0;
+  transition: all 0.4s;
+}
+
+.aside-container {
+  position: fixed;
+  // top: 77px;
+  width: 60%;
+  background-color: var(--background);
+  padding: 20px 40px;
+  border-radius: 4px;
+  max-height: calc(100vh - 60px);
+  //750px;
+
+  overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+     
+    &::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+     
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: var(--foreground);
+    }
+
+  .aside-content {
+    max-width: 720px;
+
+    table {
+      width: 100%;
+      margin-top: 10px;
+
+      th, td {
+        width: 100%;
+        word-break: break-all;
+    
+        border: 1px solid var(--foreground);
+        // border-radius: 4px;
+        padding: 12px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+
+
+.lexical-table {
+  tr {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr 1fr;
+  }
+}
+
+
+.Toastify__close-button.Toastify__close-button--light {
+  color: #D4D4D4;
+}
