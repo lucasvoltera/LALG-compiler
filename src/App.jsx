@@ -1,20 +1,16 @@
-import { useState } from 'react';
-import Editor from '@monaco-editor/react';
-import { ToastContainer, toast } from 'react-toastify';
-import lexr from 'lexr';
+import { useState } from "react";
+import Editor from "@monaco-editor/react";
+import { ToastContainer, toast } from "react-toastify";
+import lexr from "lexr";
 
-import { FiPlay, FiUpload } from 'react-icons/fi';
-
-import './global.scss';
-import 'react-toastify/dist/ReactToastify.css';
+import "./global.scss";
+import "react-toastify/dist/ReactToastify.css";
 
 // IMPORT ALL TOKENS, KEYWORDS, ERRORS, TYPES
-import { dictionary, tokens, keywords, errors, types } from './utils/Lexical';
-
+import { dictionary, tokens, keywords, errors, types } from "./utils/Lexical";
 
 function App() {
-  // "program correto;\n int a, b, c;\n boolean d, e, f;\n int a, b, c;\n procedure proc(var a1 : int);\n int a, b, c;\n boolean d, e, f;\n begin\n a:=1;\n if (a<1) then\n a:=12;\n end\n begin\n a:=2;\n b:=10;\n c:=11;\n a:=b+c;\n d:=true;\n e:=false;\n f:=true;\n read(a);\n write(b);\n if (d) then\n begin\n a:=20;\n b:=10*c;\n c:=a/b;\n end\n while (a>1) do\n begin\n if (b>10) then\n b:=2;\n a:=a-1;\n end\n end.\n"
-  const [editorText, setEditorText] = useState("program correto;\n int a, b, c;\n boolean d, e, f;\n begin\n a:=2;\n b:=10;\n c:=11;\n a:=b+c;\n d:=true;\n e:=false;\n f:=true;\n read(a);\n write(b);\n if (d) then\n begin\n a:=20;\n b:=10*c;\n c:=a/b;\n end\n while (a>1) do\n begin\n if (b>10) then\n b:=2;\n a:=a-1;\n end\n end.\n");
+  const [editorText, setEditorText] = useState();
   const [compiledCode, setCompiledCode] = useState([]);
   const [isAsideVisible, setIsAsideVisible] = useState(true);
   const [activeTab, setActiveTab] = useState("lexical");
@@ -38,9 +34,13 @@ function App() {
       const response = tokenizer.tokenize(line);
 
       response.forEach((column, columnIndex) => {
-        response[columnIndex] = { ...column, line: lineIndex + 1, column: columnIndex + 1 };
+        response[columnIndex] = {
+          ...column,
+          line: lineIndex + 1,
+          column: columnIndex + 1,
+        };
       });
-      
+
       Array.prototype.push.apply(compiledCodeLines, response);
     });
 
@@ -56,35 +56,33 @@ function App() {
     event.preventDefault();
 
     const exampleFileReader = new FileReader();
-    exampleFileReader.onload = async (event) => { 
+    exampleFileReader.onload = async (event) => {
       setEditorText(event.target.result);
     };
     exampleFileReader.readAsText(event.target.files[0]);
   }
-  
+
   return (
     <div className="container">
       <section className="code-editor">
         <div className="actions">
           <div className="editor-actions">
             <button type="button" onClick={handleSubmit}>
-              <FiPlay size={16} />
               COMPILE
             </button>
 
-            <label htmlFor="upload" className="upload" >
-              <FiUpload size={16} />
+            <label htmlFor="upload" className="upload">
               UPLOAD FILE
             </label>
-            <input 
-              id="upload" 
-              type="file" 
-              onChange={(event) => handleUpload(event)} 
+            <input
+              id="upload"
+              type="file"
+              onChange={(event) => handleUpload(event)}
             />
           </div>
         </div>
 
-        <Editor 
+        <Editor
           height="100%"
           width="100%"
           value={editorText}
@@ -94,10 +92,19 @@ function App() {
         />
       </section>
 
-      <aside className={`aside-container ${(isAsideVisible ? "visible" : "invisible")}`}>
+      <aside
+        className={`aside-container ${
+          isAsideVisible ? "visible" : "invisible"
+        }`}
+      >
         <div className="aside-content">
-
-          <div className={activeTab === "lexical" ? "active-table lexical-table" : "inactive-table"}>
+          <div
+            className={
+              activeTab === "lexical"
+                ? "active-table lexical-table"
+                : "inactive-table"
+            }
+          >
             <table>
               <thead>
                 <tr>
@@ -123,7 +130,7 @@ function App() {
           </div>
         </div>
       </aside>
-      
+
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
@@ -138,7 +145,7 @@ function App() {
         limit={1}
       />
     </div>
-  )
+  );
 }
 
 export default App;
