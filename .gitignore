@@ -14,6 +14,8 @@ yarn.lock
 *.local
 
 # Editor directories and files
+LINK PARA ABRIR O TRABALHO.txt
+First-Follow
 .vscode/*
 !.vscode/extensions.json
 .idea

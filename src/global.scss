@@ -1,13 +1,10 @@
-// @import url('https://fonts.googleapis.com/css2?family=Bigelow+Rules&display=swap');
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   scroll-behavior: smooth;
-  // font-family: 'Inconsolata', monospace;
-  font-family: 'roboto', monospace;
+  font-family: 'Inconsolata', monospace;
 }
-
 
 :root {
   --background: #fff;
@@ -17,9 +14,8 @@
   --purple: #aaa;
 }
 
-
 body {
-  // margin: 10px;
+  margin: 10px;
   width: 100vw;
   height: 100vh;
   background-color: var(--background);
@@ -59,15 +55,50 @@ body {
   flex-direction: column;
 }
 
+header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: rgba($color: #44475a, $alpha: 0.2);
+
+  padding: 20px 40px;
+  margin-bottom: 20px;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    color: var(--foreground);
+    background-color: rgba($color: #44475a, $alpha: 0.4);
+
+    text-decoration: none;
+
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: var(--current-line);
+    }
+  }
+}
 
 .code-editor {
-  width: 45%;
+  width: 100%;
   height: 100%;
 
   display: flex;
   flex-direction: column;
 
-  padding: 20px 40px;
+  padding: 0 40px;
   margin-bottom: 20px;
 
   .actions {
@@ -100,7 +131,7 @@ body {
 }
 
 .invisible {
-  right: -60%;
+  right: -800px;
   transition: all 0.4s;
 }
 
@@ -109,15 +140,13 @@ body {
   transition: all 0.4s;
 }
 
-.aside-container {
+.tokens-table {
   position: fixed;
-  // top: 77px;
-  width: 60%;
+  top: 77px;
   background-color: var(--background);
   padding: 20px 40px;
   border-radius: 4px;
-  max-height: calc(100vh - 60px);
-  //750px;
+  max-height: 750px;
 
   overflow-y: auto;
 
@@ -134,35 +163,29 @@ body {
       background-color: var(--foreground);
     }
 
-  .aside-content {
+  .table {
     max-width: 720px;
 
     table {
       width: 100%;
-      margin-top: 10px;
-
-      th, td {
-        width: 100%;
-        word-break: break-all;
-    
-        border: 1px solid var(--foreground);
-        // border-radius: 4px;
-        padding: 12px;
-        text-align: center;
-      }
     }
   }
-}
 
+  th, td {
+    width: 100%;
+    word-break: break-all;
 
+    border: 1px solid var(--foreground);
+    border-radius: 4px;
+    padding: 12px;
+    text-align: center;
+  }
 
-.lexical-table {
   tr {
     display: grid;
-    grid-template-columns: 1fr 3fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr 1fr;
   }
 }
-
 
 .Toastify__close-button.Toastify__close-button--light {
   color: #D4D4D4;

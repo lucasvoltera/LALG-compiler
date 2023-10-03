@@ -1,19 +1,22 @@
-import { useState } from "react";
-import Editor from "@monaco-editor/react";
-import { ToastContainer, toast } from "react-toastify";
-import lexr from "lexr";
+import { useState } from 'react';
+import Editor from '@monaco-editor/react';
+import { ToastContainer, toast } from 'react-toastify';
+import lexr from 'lexr';
 
-import "./global.scss";
-import "react-toastify/dist/ReactToastify.css";
+import { FiChevronsLeft, FiChevronsRight, FiGithub, FiPlay, FiUpload } from 'react-icons/fi';
+
+import './global.scss';
+import 'react-toastify/dist/ReactToastify.css';
 
 // IMPORT ALL TOKENS, KEYWORDS, ERRORS, TYPES
-import { dictionary, tokens, keywords, errors, types } from "./utils/Lexical";
+import { dictionary, tokens, keywords, errors, types } from './utils';
+import { identifyFunction } from './utils/Syntax/functions';
 
 function App() {
-  const [editorText, setEditorText] = useState();
-  const [compiledCode, setCompiledCode] = useState([]);
+  const [editorText, setEditorText] = useState("int a;\nint b,");
+  const [compiled, setCompiled] = useState([]);
+  const [syntaxErrors, setSyntaxErrors] = useState([]);
   const [isAsideVisible, setIsAsideVisible] = useState(true);
-  const [activeTab, setActiveTab] = useState("lexical");
 
   // INITIALIZES LEXR
   let tokenizer = new lexr.Tokenizer("");
@@ -27,25 +30,34 @@ function App() {
   tokenizer.addIgnoreSet(["WHITESPACE"]);
 
   function handleSubmit() {
-    let editorTextLines = editorText.split("\n");
-    let compiledCodeLines = [];
+    // ARRUMAR
+    getLexical();
+  }
+
+  function getLexical() {
+    let editorTextLines = editorText.split("\r\n");
+    let compiledLines = [];
+    let lineErrors = [];
+
+    let identifiers = [];
 
     editorTextLines.forEach((line, lineIndex) => {
       const response = tokenizer.tokenize(line);
+      const errorList = identifyFunction(response, lineIndex + 1, identifiers);
+
+      if (errorList.length) {
+        Array.prototype.push.apply(lineErrors, errorList);
+      }
 
       response.forEach((column, columnIndex) => {
-        response[columnIndex] = {
-          ...column,
-          line: lineIndex + 1,
-          column: columnIndex + 1,
-        };
+        response[columnIndex] = { ...response[columnIndex], line: lineIndex + 1, column: columnIndex + 1 };
       });
-
-      Array.prototype.push.apply(compiledCodeLines, response);
+      
+      Array.prototype.push.apply(compiledLines, response);
     });
 
-    //updateCompiledCode(compiledCodeLines);
-    setCompiledCode(compiledCodeLines);
+    setCompiled(compiledLines);
+    setSyntaxErrors(lineErrors);
   }
 
   function handleEditorChange(value, event) {
@@ -56,81 +68,91 @@ function App() {
     event.preventDefault();
 
     const exampleFileReader = new FileReader();
-    exampleFileReader.onload = async (event) => {
+    exampleFileReader.onload = async (event) => { 
       setEditorText(event.target.result);
     };
     exampleFileReader.readAsText(event.target.files[0]);
   }
-
+  
   return (
     <div className="container">
       <section className="code-editor">
         <div className="actions">
           <div className="editor-actions">
             <button type="button" onClick={handleSubmit}>
-              COMPILE
+              COMPILAR
             </button>
 
-            <label htmlFor="upload" className="upload">
-              UPLOAD FILE
+            <label htmlFor="upload" className="upload" >
+              UPLOAD
             </label>
-            <input
-              id="upload"
-              type="file"
-              onChange={(event) => handleUpload(event)}
+            <input 
+              id="upload" 
+              type="file" 
+              onChange={(event) => handleUpload(event)} 
             />
           </div>
         </div>
 
-        <Editor
+        <Editor 
           height="100%"
-          width="100%"
+          width="45%"
           value={editorText}
-          theme="vs-light" // mudar para vs-light ou
+          theme="vs-light"
           onChange={handleEditorChange}
           options={{ fontSize: "16px" }}
         />
       </section>
 
-      <aside
-        className={`aside-container ${
-          isAsideVisible ? "visible" : "invisible"
-        }`}
-      >
-        <div className="aside-content">
-          <div
-            className={
-              activeTab === "lexical"
-                ? "active-table lexical-table"
-                : "inactive-table"
-            }
-          >
-            <table>
-              <thead>
-                <tr>
-                  <th>LEXEME</th>
-                  <th>TOKEN</th>
-                  <th>ROW</th>
-                  <th>COLUMN</th>
-                </tr>
-              </thead>
-              <tbody>
-                {compiledCode.map((data, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{data.value}</td>
-                      <td>{dictionary[data.token]}</td>
-                      <td>{data.line}</td>
-                      <td>{data.column}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+      <aside className={`tokens-table ${(isAsideVisible ? "visible" : "invisible")}`}>
+        <div className="table">
+          <table>
+            <thead>
+              <tr>
+                <th>LEXEMA</th>
+                <th>TOKEN</th>
+                <th>LINHA</th>
+                <th>COLUNA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {compiled.map((data, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{data.value}</td>
+                    <td>{dictionary[data.token]}</td>
+                    <td>{data.line}</td>
+                    <td>{data.column}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+
+          </table>
+              SYNTAX ERRORS
+              <table>
+                <thead>
+                  <tr>
+                    <th>ERRO</th>
+                    <th>LINHA</th>
+                    <th>COLUNA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {syntaxErrors.map((data, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{data.error}</td>
+                        <td>{data.line}</td>
+                        <td>{data.column}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
         </div>
       </aside>
-
+      
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
@@ -145,7 +167,7 @@ function App() {
         limit={1}
       />
     </div>
-  );
+  )
 }
 
 export default App;
