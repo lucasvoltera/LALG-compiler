@@ -14,6 +14,7 @@
   --purple: #aaa;
 }
 
+
 body {
   margin: 10px;
   width: 100vw;
@@ -55,41 +56,6 @@ body {
   flex-direction: column;
 }
 
-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  background-color: rgba($color: #44475a, $alpha: 0.2);
-
-  padding: 20px 40px;
-  margin-bottom: 20px;
-
-  h1 {
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    color: var(--foreground);
-    background-color: rgba($color: #44475a, $alpha: 0.4);
-
-    text-decoration: none;
-
-    transition: all 0.2s;
-
-    &:hover {
-      background-color: var(--current-line);
-    }
-  }
-}
 
 .code-editor {
   width: 100%;
@@ -131,7 +97,7 @@ header {
 }
 
 .invisible {
-  right: -800px;
+  right: -1920px;
   transition: all 0.4s;
 }
 
@@ -140,13 +106,15 @@ header {
   transition: all 0.4s;
 }
 
-.tokens-table {
+.aside-container {
   position: fixed;
   top: 77px;
+  width: 50%;
   background-color: var(--background);
   padding: 20px 40px;
   border-radius: 4px;
-  max-height: 750px;
+  max-height: calc(100vh - 60px);
+  //750px;
 
   overflow-y: auto;
 
@@ -163,28 +131,69 @@ header {
       background-color: var(--foreground);
     }
 
-  .table {
+  .aside-content {
     max-width: 720px;
 
     table {
       width: 100%;
+      margin-top: 10px;
+
+      th, td {
+        width: 100%;
+        word-break: break-all;
+    
+        border: 1px solid var(--foreground);
+        border-radius: 4px;
+        padding: 12px;
+        text-align: center;
+      }
+    
+      tr {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr 1fr;
+      }
     }
   }
+}
 
-  th, td {
-    width: 100%;
-    word-break: break-all;
+.tables-tab {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
-    border: 1px solid var(--foreground);
-    border-radius: 4px;
-    padding: 12px;
-    text-align: center;
+.tab {
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+  border-radius: 4px;
+}
+
+.active-tab {
+  background-color: rgba($color: #988BC7, $alpha: 0.6);
+}
+
+.inactive-tab {
+  background-color: rgba($color: #44475a, $alpha: 0.4);
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: rgba($color: #988BC7, $alpha: 0.6);
   }
+}
 
-  tr {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr;
-  }
+.active-table {
+  display: block;
+}
+
+.inactive-table {
+  display: none;
 }
 
 .Toastify__close-button.Toastify__close-button--light {
