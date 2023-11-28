@@ -1,40 +1,27 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { ToastContainer, toast } from 'react-toastify';
 import lexr from 'lexr';
-
-import { FiChevronsLeft, FiChevronsRight, FiGithub, FiPlay, FiUpload } from 'react-icons/fi';
 
 import './global.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 // IMPORT ALL TOKENS, KEYWORDS, ERRORS, TYPES
 import { dictionary, tokens, keywords, errors, types } from './utils/Lexical';
-import { useCompile } from './context/Compile';
 import { analyzer } from './utils/Syntax/analyzer';
 
+
 function App() {
-  // const { 
-  //   compiledCode,
-  //   updateCompiledCode,
-  //   variablesTable,
-  //   updateVariablesTable,
-  //   syntaxErrors,
-  //   updateSyntaxErrors,
-  //   semanticErrors, 
-  //   updateSemanticErrors 
-  // } = useCompile();
-
-  // program teste; int a; boolean b; procedure proc(var c : int); begin a := 12 if (a>12) end .
-
-  const [editorText, setEditorText] = useState();
+  // "program correto;\n int a, b, c;\n boolean d, e, f;\n int a, b, c;\n procedure proc(var a1 : int);\n int a, b, c;\n boolean d, e, f;\n begin\n a:=1;\n if (a<1) then\n a:=12;\n end\n begin\n a:=2;\n b:=10;\n c:=11;\n a:=b+c;\n d:=true;\n e:=false;\n f:=true;\n read(a);\n write(b);\n if (d) then\n begin\n a:=20;\n b:=10*c;\n c:=a/b;\n end\n while (a>1) do\n begin\n if (b>10) then\n b:=2;\n a:=a-1;\n end\n end.\n"
+  const [editorText, setEditorText] = useState("program correto;\n int a, b, c;\n boolean d, e, f;\n begin\n a:=2;\n b:=10;\n c:=11;\n a:=b+c;\n d:=true;\n e:=false;\n f:=true;\n read(a);\n write(b);\n if (d) then\n begin\n a:=20;\n b:=10*c;\n c:=a/b;\n end\n while (a>1) do\n begin\n if (b>10) then\n b:=2;\n a:=a-1;\n end\n end.\n");
   const [compiledCode, setCompiledCode] = useState([]);
   const [variablesTable, setVariablesTable] = useState([]);
   const [syntaxErrors, setSyntaxErrors] = useState([]);
   const [semanticErrors, setSemanticErrors] = useState([]);
+  const [generatedCode, setGeneratedCode] = useState([]);
+  const [dataTable, setDataTable] = useState([]);
   const [isAsideVisible, setIsAsideVisible] = useState(true);
   const [activeTab, setActiveTab] = useState("lexical");
-
 
   // INITIALIZES LEXR
   let tokenizer = new lexr.Tokenizer("");
@@ -48,12 +35,13 @@ function App() {
   tokenizer.addIgnoreSet(["WHITESPACE"]);
 
   function handleSubmit() {
-    setVariablesTable([]);
-    setSyntaxErrors([]);
-    setSemanticErrors([]);
-
-    let editorTextLines = editorText.split("\r\n");
+    let editorTextLines = editorText.split("\n");
     let compiledCodeLines = [];
+    let updatedVariablesTable = [];
+    let updatedSyntaxErrors = [];
+    let updatedSemanticErrors = [];
+    let updatedGeneratedCode = [];
+    let updatedDataTable = [];
 
     editorTextLines.forEach((line, lineIndex) => {
       const response = tokenizer.tokenize(line);
@@ -65,9 +53,16 @@ function App() {
       Array.prototype.push.apply(compiledCodeLines, response);
     });
 
-    // updateCompiledCode(compiledCodeLines);
+    //updateCompiledCode(compiledCodeLines);
     setCompiledCode(compiledCodeLines);
-    analyzer(0, compiledCodeLines, [], setVariablesTable, [], setSyntaxErrors, [], setSemanticErrors);
+    
+    analyzer(0, compiledCodeLines, updatedVariablesTable, updatedSyntaxErrors, updatedSemanticErrors, updatedGeneratedCode, updatedDataTable);
+
+    setVariablesTable(updatedVariablesTable);
+    setSyntaxErrors(updatedSyntaxErrors);
+    setSemanticErrors(updatedSemanticErrors);
+    setGeneratedCode(updatedGeneratedCode);
+    setDataTable(updatedDataTable);
   }
 
   function handleEditorChange(value, event) {
@@ -115,6 +110,7 @@ function App() {
       </section>
 
       <aside className={`aside-container ${(isAsideVisible ? "visible" : "invisible")}`}>
+
         <div className="aside-content">
           <ul className="tables-tab">
             <li 
@@ -146,7 +142,7 @@ function App() {
             </li>
           </ul>
 
-          <div className={activeTab === "lexical" ? "active-table" : "inactive-table"}>
+          <div className={activeTab === "lexical" ? "active-table lexical-table" : "inactive-table"}>
             <table>
               <thead>
                 <tr>
@@ -171,7 +167,7 @@ function App() {
             </table>
           </div>
 
-          <div className={activeTab === "syntax" ? "active-table" : "inactive-table"}>
+          <div className={activeTab === "syntax" ? "active-table syntax-table" : "inactive-table"}>
             <table>
               <thead>
                 <tr>
@@ -194,30 +190,62 @@ function App() {
                 ) : (
                   <tr>
                     <td>Nenhum erro encontrado.</td>
+                    <td></td>
+                    <td></td>
                   </tr>
                 )}
               </tbody>
             </table> 
           </div>
 
-          <div className={activeTab === "variables" ? "active-table" : "inactive-table"}>
+          <div className={activeTab === "semantic" ? "active-table semantic-table" : "inactive-table"}>
             <table>
               <thead>
                 <tr>
-                  <th>LEXEMA</th>
-                  <th>TOKEN</th>
+                  <th>LINHA</th>
+                  <th>ERRO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {semanticErrors.length ? (
+                  semanticErrors.map((data, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{data.line}</td>
+                        <td>{data.error}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td></td>
+                    <td>Nenhum erro encontrado.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table> 
+          </div>
+
+          <div className={activeTab === "variables" ? "active-table variables-table" : "inactive-table"}>
+            <table>
+              <thead>
+                <tr>
+                  <th>TIPO</th>
+                  <th>ID</th>
+                  <th>VALOR</th>
                   <th>LINHA</th>
                   <th>COLUNA</th>
                 </tr>
               </thead>
               <tbody>
-                {variablesTable.map((data, index) => {
+                {variablesTable.map((variable, index) => {
                   return (
                     <tr key={index}>
-                      <td>{data.value}</td>
-                      <td>{dictionary[data.token]}</td>
-                      <td>{data.line}</td>
-                      <td>{data.column}</td>
+                      <td>{variable.type}</td>
+                      <td>{variable.value}</td>
+                      <td>{variable.data}</td>
+                      <td>{variable.line}</td>
+                      <td>{variable.column}</td>
                     </tr>
                   );
                 })}

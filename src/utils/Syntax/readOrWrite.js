@@ -1,59 +1,61 @@
-export function readOrWrite(firstPosition, compiledCode, variablesTable, setVariablesTable, syntaxErrors, setSyntaxErrors, semanticErrors, setSemanticErrors){
-    let newSyntaxErrors = []; /*{ token: string, error: string, line: number, column: number }*/ 
-    let lastPosition = firstPosition; 
+import { compareSyntaxToken } from "../Functions/compareSyntaxToken";
+import { verifyIdentifier } from "../Functions/verifyIdentifier";
 
-        if(compiledCode[lastPosition].token !== 'OPEN_PARENTHESES'){
-            newSyntaxErrors.push({ 
-                token: compiledCode[lastPosition].token,
-                error: "DEVERIA SER UM ABRE PARENTESES",
-                line: compiledCode[lastPosition].line,
-                column: compiledCode[lastPosition].column
-            });
-            
-        }
-        lastPosition++;
-        while (lastPosition !== compiledCode[(line.length)-2]){
-            if ((lastPosition % 2) != 0){
-                if(compiledCode[lastPosition].token !== 'IDENTIFIER'){
-                    newSyntaxErrors.push({ 
-                        token: compiledCode[lastPosition].token,
-                        error: "DEVERIA SER UM IDENTIFICADOR",
-                        line: compiledCode[lastPosition].line ,
-                        column: compiledCode[lastPosition].column
-                    });
-                } else {
-                    if(compiledCode[lastPosition].token !== 'COMMA'){
-                        newSyntaxErrors.push({ 
-                            token: compiledCode[lastPosition].token,
-                            error: "DEVERIA SER UMA VÍRGULA",
-                            line: compiledCode[lastPosition].line ,
-                            column: compiledCode[lastPosition].column
-                        });
-                    }   
-                }
+export function readOrWrite(firstPosition, compiledCode, variablesTable, syntaxErrors, semanticErrors, generatedCode, dataTable){ 
+    let lastPosition = firstPosition + 1;
+	let countInstruction =0;
+  let verifyInstruction = ['ABRE PARENTESES', 'IDENTIFICADOR','FECHA PARENTESES'];
+  
+  while (compiledCode[lastPosition].token !== 'SEMICOLON'&& lastPosition< compiledCode.length-1 ){
+    switch(countInstruction){
+      case 0:
+       compareSyntaxToken(compiledCode[lastPosition],'OPEN_PARENTHESIS',syntaxErrors)
+       countInstruction++ 
+       break;
+      case 1:
+        let index = 0;
+        while(compiledCode[lastPosition+index].token !== 'CLOSE_PARENTHESIS'&& lastPosition+index< compiledCode.length-1 ){
+        if(index % 2 ==0){
+            if(compareSyntaxToken(compiledCode[lastPosition+index],'IDENTIFIER',syntaxErrors)){
+                verifyIdentifier(compiledCode[lastPosition+index],syntaxErrors,semanticErrors,variablesTable)
             }
-            lastPosition++;
         }
-        if(compiledCode[(line.length)-2].token !== 'CLOSE_PARENTHESIS'){
-            newSyntaxErrors.push({ 
-                token: compiledCode[lastPosition].token,
-                error: "DEVERIA SER UM FECHA PARENTESES",
-                line: compiledCode[lastPosition].line ,
-                column: compiledCode[lastPosition].column
-            });
+            else{
+                compareSyntaxToken(compiledCode[lastPosition+index],'COMMA',syntaxErrors)
+            }
+            index ++;
         }
-        lastPosition++;
-        if(compiledCode[(line.length)-1].token !== 'SEMICOLON'){
-            newSyntaxErrors.push({ 
-                token: compiledCode[lastPosition].token,
-                error: "DEVERIA SER UM PONTO E VIRGULA",
-                line: compiledCode[lastPosition].line ,
-                column: compiledCode[lastPosition].column
-            });
-        }
-    (!newSyntaxErrors? console.log('passou sem erro'): console.log(errors));
-     
-    setSyntaxErrors([...syntaxErrors, ...newSyntaxErrors]);
-
-    return lastPosition;
+        lastPosition = lastPosition + index-1;
+        countInstruction++ 
+        break;
+        case 2:
+            compareSyntaxToken(compiledCode[lastPosition],'CLOSE_PARENTHESIS',syntaxErrors)
+            countInstruction++ 
+        break;
+        default:
+        syntaxErrors.push({ 
+          token: compiledCode[lastPosition].token,
+          error: "CARACTERE EM EXCESSO",
+          line: compiledCode[lastPosition].line,
+          column: compiledCode[lastPosition].column,
+        });  
+      }
+  
+    lastPosition++;
   }
+  compareSyntaxToken(compiledCode[lastPosition],'SEMICOLON',syntaxErrors);
+  if(countInstruction < verifyInstruction.length-1){
+    while(countInstruction< verifyInstruction.length ){
+       syntaxErrors.push({ 
+              token: verifyInstruction[countInstruction],
+              error: `ESTA FALTANDO UM ${verifyInstruction[countInstruction]}`,
+              line: compiledCode[lastPosition].line,
+              column: countInstruction+1,
+            });
+      countInstruction ++;
+    }
+  }
+  
+	console.log(" syntax errors: ", syntaxErrors, "semantic errors: ", semanticErrors);
+	return lastPosition+1;
+}

@@ -1,53 +1,50 @@
-// import { useCompile } from "../../context/Compile";
-import { simpleExpression } from "./simpleExpression";
+import { expressions } from "../Semantic/expressions";
 
-export function expression(firstPosition, compiledCode, variablesTable, setVariablesTable, syntaxErrors, setSyntaxErrors, semanticErrors, setSemanticErrors) {
-  let newSyntaxErrors = [];
-  let newSemanticErrors = [];
-  let lastPosition = firstPosition + 1;
-
-  let possibleVariables = ['IDENTIFIER', 'FLOAT', 'INT', ];
-  let relation = ['EQUAL', 'DIFFERENT', 'SMALLER', 'SMALLER_OR_EQUAL', 'BIGGER_OR_EQUAL','BIGGER'];
+export function expression(firstPosition, compiledCode, variablesTable, syntaxErrors, semanticErrors, generatedCode, dataTable) {
+  let lastPosition = firstPosition;
   
+  let expressionValue = expressions(lastPosition, compiledCode, variablesTable, semanticErrors, generatedCode, dataTable);
+
+  let possibleVariables = ['IDENTIFIER', 'FLOAT', 'NUM', 'BOOL', 'TRUE', 'FALSE'];
+  let relation = ['EQUAL', 'DIFFERENT', 'SMALLER', 'SMALLER_OR_EQUAL', 'BIGGER_OR_EQUAL','BIGGER', 'MINUS', 'SUM', 'DIVIDE', 'MULTIPLY'];
+
   if (!possibleVariables.includes(compiledCode[lastPosition].token)) {
-    newSyntaxErrors.push({ 
+    syntaxErrors.push({ 
       token: compiledCode[lastPosition].token,
       error: "DEVERIA SER UM IDENTIFICADOR OU NÚMERO",
       line: compiledCode[lastPosition].line,
       column: compiledCode[lastPosition].column,
     });
-  } else {
-    lastPosition++;
+  }
+  lastPosition++;
+
+  if (compiledCode[lastPosition].token === "SEMICOLON" || compiledCode[lastPosition].token === "CLOSE_PARENTHESIS") {
+    return { 
+      expressionLastPosition: lastPosition,
+      expressionValue: expressionValue
+     };
   }
 
   if (!relation.includes(compiledCode[lastPosition].token)) {
-    newSyntaxErrors.push({ 
-      token: compiledCode[lastPosition].token,
-      error: "DEVERIA SER UMA RELAÇÃO",
-      line: compiledCode[lastPosition].line,
-      column: compiledCode[lastPosition].column,
-    });
-  } else {
-    lastPosition++;
+    return { 
+      expressionLastPosition: lastPosition,
+      expressionValue: expressionValue
+     };
   } 
-  
-  if (compiledCode[lastPosition].token !== "IDENTIFIER") {
-    
-  } else {
-    lastPosition++;
-  }
+  lastPosition++;
 
   if(!possibleVariables.includes(compiledCode[lastPosition].token)){
-    newSyntaxErrors.push({ 
+    syntaxErrors.push({ 
       token: compiledCode[lastPosition].token,
       error: "DEVERIA SER UM IDENTIFICADOR OU NÚMERO",
       line: compiledCode[lastPosition].line,
       column: compiledCode[lastPosition].column,
     });
   } 
+  lastPosition++;
 
-  setSyntaxErrors([...syntaxErrors, ...newSyntaxErrors]);
-  setSemanticErrors([...semanticErrors, ...newSemanticErrors]);
-
-  return lastPosition;
+  return { 
+    expressionLastPosition: lastPosition,
+    expressionValue: expressionValue
+   };
 }
