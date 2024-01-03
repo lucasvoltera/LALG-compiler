@@ -6,21 +6,14 @@
   font-family: 'Inconsolata', monospace;
 }
 
-// :root {
-//   --background: #191622;
-//   --current-line: #44475a;
-//   --section: #41414D;
-//   --foreground: #E1E1E6;
-//   --purple: #988BC7;
-// }
-
 :root {
-  --background: #fff;
-  --current-line: #aaa;
-  --section: #333;
-  --foreground: #333;
-  --purple: #aaa;
+  --background: #191622;
+  --current-line: #44475a;
+  --section: #41414D;
+  --foreground: #E1E1E6;
+  --purple: #988BC7;
 }
+
 
 body {
   margin: 20px;

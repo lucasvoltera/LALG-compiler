@@ -13,7 +13,7 @@ import { analyzer } from './utils/Syntax/analyzer';
 
 function App() {
   // "program correto;\n int a, b, c;\n boolean d, e, f;\n int a, b, c;\n procedure proc(var a1 : int);\n int a, b, c;\n boolean d, e, f;\n begin\n a:=1;\n if (a<1) then\n a:=12;\n end\n begin\n a:=2;\n b:=10;\n c:=11;\n a:=b+c;\n d:=true;\n e:=false;\n f:=true;\n read(a);\n write(b);\n if (d) then\n begin\n a:=20;\n b:=10*c;\n c:=a/b;\n end\n while (a>1) do\n begin\n if (b>10) then\n b:=2;\n a:=a-1;\n end\n end.\n"
-  const [editorText, setEditorText] = useState("program correto;\n int a, b, c;\n boolean d, e, f;\n begin\n a:=2;\n b:=10;\n c:=11;\n a:=b+c;\n d:=true;\n e:=false;\n f:=true;\n read(a);\n write(b);\n if (d) then\n begin\n a:=20;\n b:=10*c;\n c:=a/b;\n end\n while (a>1) do\n begin\n if (b>10) then\n b:=2;\n a:=a-1;\n end\n end.\n");
+  const [editorText, setEditorText] = useState("program correto;\nvar\n  a, b, c: integer;\n  d, e, f: boolean;\nbegin\n  a := 2;\n  b := 10;\n  c := 11;\n  a := b + c;\n  d := true;\n  e := false;\n  f := true;\n  read(a);\n  write(b);\n  if (d) then\n  begin\n    a := 20;\n    b := 10 * c;\n    c := a / b;\n  end;\n  while (a > 1) do\n  begin\n    if (b > 10) then\n      b := 2;\n    a := a - 1;\n  end;\nend.");
   const [compiledCode, setCompiledCode] = useState([]);
   const [variablesTable, setVariablesTable] = useState([]);
   const [syntaxErrors, setSyntaxErrors] = useState([]);
@@ -103,7 +103,7 @@ function App() {
           height="100%"
           width="45%"
           value={editorText}
-          theme="vs-light"
+          theme="vs-dark"
           onChange={handleEditorChange}
           options={{ fontSize: "16px" }}
         />
